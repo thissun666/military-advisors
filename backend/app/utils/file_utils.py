@@ -19,9 +19,14 @@ def read_json(file_path: str) -> Dict[str, Any]:
 
 def write_json(file_path: str, data: Dict[str, Any]) -> None:
     """将数据写入 JSON 文件（覆盖写入）"""
+    # 确保父目录存在
     ensure_dir(os.path.dirname(file_path))
     with open(file_path, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
+
+def ensure_file_dir(file_path: str) -> None:
+    """确保文件所在目录存在"""
+    ensure_dir(os.path.dirname(file_path))
 
 def append_to_json_list(file_path: str, new_item: Any) -> None:
     """向 JSON 数组文件追加一条记录（如果文件不存在则创建数组）"""

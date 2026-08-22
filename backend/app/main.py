@@ -1,19 +1,49 @@
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse
+import sys
 import os
 import asyncio
 import json
 import uuid
 
-from .database import init_db
-from . import models
-from .routers import session_router, topic_router, settings_router
-from .websocket_manager import manager
-from .services.scheduler import Scheduler
-from .services.memory_service import save_message  # 改用统一存储
+# ===== 打包后路径处理（必须放在最顶部） =====
+def get_base_path():
+    """获取可执行文件所在目录"""
+    if getattr(sys, 'frozen', False):
+        # 打包后运行
+        return os.path.dirname(sys.executable)
+    else:
+        # 开发环境运行，项目根目录
+        return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+BASE_PATH = get_base_path()
+
+# ===== 创建完整的目录结构（确保运行时数据目录存在） =====
+data_path = os.path.join(BASE_PATH, 'backend', 'data')
+sessions_path = os.path.join(data_path, 'sessions')
+config_path = os.path.join(data_path, 'config')
+
+for path in [data_path, sessions_path, config_path]:
+    os.makedirs(path, exist_ok=True)
+
+print(f"[Main] 数据目录已就绪: {data_path}")
+
+# ===== 将项目根目录添加到 sys.path，使打包后能正确导入模块 =====
+if getattr(sys, 'frozen', False):
+    sys.path.insert(0, BASE_PATH)
+
+# ===== 导入（使用绝对导入，避免相对导入在打包后失败） =====
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse
+
+from backend.app.database import init_db
+from backend.app import models
+from backend.app.routers import session_router, topic_router, settings_router
+from backend.app.websocket_manager import manager
+from backend.app.services.scheduler import Scheduler
+from backend.app.services.memory_service import save_message
+
+# ===== 应用实例 =====
 app = FastAPI(title="主公的军师团 API", version="0.3.0")
 
 app.add_middleware(
@@ -28,21 +58,26 @@ app.add_middleware(
 def startup():
     init_db()
 
+# ===== 注册路由 =====
 app.include_router(session_router.router, prefix="/api/sessions", tags=["sessions"])
 app.include_router(topic_router.router, prefix="/api/topics", tags=["topics"])
 app.include_router(settings_router.router, prefix="/api/settings", tags=["settings"])
 
-frontend_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "frontend-web")
+# ===== 静态文件（使用 BASE_PATH 计算） =====
+frontend_path = os.path.join(BASE_PATH, 'frontend-web')
+
 if os.path.exists(frontend_path):
     app.mount("/static", StaticFiles(directory=frontend_path), name="static")
+    
     @app.get("/")
     async def get_index():
         index_file = os.path.join(frontend_path, "index.html")
         with open(index_file, "r", encoding="utf-8") as f:
             return HTMLResponse(f.read())
 else:
-    print("警告: frontend-web 目录不存在")
+    print(f"警告: frontend-web 目录不存在，请确认路径: {frontend_path}")
 
+# ===== WebSocket 和调度器 =====
 schedulers = {}
 welcomed = set()
 
@@ -114,3 +149,8 @@ async def websocket_endpoint(websocket: WebSocket, session_id: int, topic_id: in
             await websocket.close()
         except:
             pass
+
+# ===== 直接运行入口（方便开发调试） =====
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
