@@ -1,0 +1,32 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.env
+*.log
+
+# 数据目录（包含用户数据和 API Key）
+backend/data/sessions/
+backend/data/config/model_config.json
+backend/data/config/advisor_backend.json
+backend/data/config/advisor_model_mapping.json
+backend/data/config/advisor_config.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 打包
+build/
+dist/
+*.spec
+*.exe
+
+# 系统
+.DS_Store
+Thumbs.db

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>主公的军师团</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/sidebar.css">
+    <link rel="stylesheet" href="/static/css/chat.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 左侧边栏 - 灰底 -->
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-chess-king"></i> 军师团</h2>
+            </div>
+            <div class="sidebar-body">
+                <button id="newSessionBtn" class="new-session-btn"><i class="fas fa-plus"></i> 新建对话</button>
+                <ul id="sessionList" class="session-list"></ul>
+            </div>
+            <div class="sidebar-footer">
+                <button id="settingsBtn" class="settings-btn"><i class="fas fa-cog"></i> 更换 API</button>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main id="mainContent" class="main-content">
+            <header class="chat-header">
+                <div class="header-left">
+                    <button id="toggleSidebarBtn" class="toggle-sidebar-btn"><i class="fas fa-bars"></i></button>
+                    <h3 id="topicTitle">选择或新建一个对话</h3>
+                </div>
+                <div class="header-actions">
+                    <button id="menuBtn" class="menu-btn"><i class="fas fa-ellipsis-v"></i></button>
+                    <div id="dropdownMenu" class="dropdown-menu" style="display: none;">
+                        <div class="dropdown-item"><i class="fas fa-user-friends"></i> 群成员</div>
+                        <div class="dropdown-item"><i class="fas fa-bullhorn"></i> 群公告</div>
+                        <div class="dropdown-item"><i class="fas fa-pen"></i> 群昵称</div>
+                    </div>
+                </div>
+            </header>
+
+            <div id="chatMessages" class="chat-messages"></div>
+
+            <div class="chat-input-area">
+                <input type="text" id="messageInput" placeholder="向军师们提问... (输入'结束当前问题'结束议题，'开始新问题：...'创建新议题)" />
+                <button id="sendBtn"><i class="fas fa-paper-plane"></i> 发送</button>
+            </div>
+        </main>
+    </div>
+
+    <!-- 设置弹窗 -->
+    <div id="settingsModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>模型配置</h2>
+            <form id="settingsForm">
+                <div class="provider-group">
+                    <label>智谱 API Key</label>
+                    <input type="password" id="zhipuKey" placeholder="输入智谱 API Key" />
+                    <label>模型名称</label>
+                    <input type="text" id="zhipuModel" placeholder="glm-4-flash" />
+                </div>
+                <div class="provider-group">
+                    <label>硅基 API Key</label>
+                    <input type="password" id="siliconKey" placeholder="输入硅基 API Key" />
+                    <label>模型名称</label>
+                    <input type="text" id="siliconModel" placeholder="Qwen/Qwen2.5-7B-Instruct" />
+                </div>
+                <div class="provider-group">
+                    <label>本地 Ollama 地址</label>
+                    <input type="text" id="ollamaUrl" placeholder="http://localhost:11434" />
+                    <label>模型名称</label>
+                    <input type="text" id="ollamaModel" placeholder="qwen2.5:3b" />
+                </div>
+                <button type="submit">保存配置</button>
+            </form>
+            <div id="settingsStatus"></div>
+        </div>
+    </div>
+
+    <!-- 删除确认弹窗 -->
+    <div id="deleteConfirmModal" class="modal" style="display: none;">
+        <div class="modal-content delete-modal-content">
+            <div class="delete-modal-icon">
+                <i class="fas fa-trash-alt"></i>
+            </div>
+            <h3 id="deleteModalTitle">确认删除</h3>
+            <p id="deleteModalMessage">确定要删除此会话吗？此操作不可恢复。</p>
+            <div class="delete-modal-buttons">
+                <button id="deleteCancelBtn" class="btn-delete-cancel">取消</button>
+                <button id="deleteConfirmBtn" class="btn-delete-confirm"><i class="fas fa-trash-alt"></i> 删除</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="/static/js/api.js"></script>
+    <script type="module" src="/static/js/websocket.js"></script>
+    <script type="module" src="/static/js/session.js"></script>
+    <script type="module" src="/static/js/chat.js"></script>
+    <script type="module" src="/static/js/input.js"></script>
+    <script type="module" src="/static/js/settings.js"></script>
+    <script type="module" src="/static/js/main.js"></script>
+</body>
+</html>
